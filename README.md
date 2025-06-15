@@ -59,7 +59,7 @@ The application uses the following AWS services and components:
 
 ```
 
-##Logging and Monitoring for CloudFront
+## Logging and Monitoring for CloudFront
 
 ```
 +------------------+            +------------------+            +------------------+
