@@ -57,6 +57,11 @@ The application uses the following AWS services and components:
                |               |                  |               |
                +---------------+                  +---------------+
 
+```
+
+##Logging and Monitoring for CloudFront
+
+```
 +------------------+            +------------------+            +------------------+
 |                  |            |                  |            |                  |
 |    CloudWatch    |<-----------+    CloudFront    +----------->|       S3         |
@@ -149,7 +154,7 @@ terraform apply tfplan
 Or simply:
 
 ```bash
-terraform apply -var='notification_emails=["your.email@example.com"]'
+terraform apply 
 ```
 
 ### 6. Access the Application
@@ -157,14 +162,14 @@ terraform apply -var='notification_emails=["your.email@example.com"]'
 After deployment is complete, you can access the application using the CloudFront domain name, which is available in the Terraform outputs:
 
 ```bash
-terraform output cloudfront_domain_name
+terraform output 
 ```
-
 You can also access the application directly via the ALB:
 
 ```bash
 terraform output load_balancer_dns
 ```
+or you can already have a outputs.txt file in local (Thanks to null_resources block in the main.tf)
 
 ## Monitoring and Logging
 
@@ -231,19 +236,6 @@ resource "null_resource" "outputs" {
       echo "VPC ID: ${module.vpc.vpc_id}" > outputs.txt
       echo "ECR Repository URL: ${module.ecr.repository_url}" >> outputs.txt
       # Additional outputs...
-    EOT
-  }
-}
-```
-
-### ECR Instructions
-A null resource in the ECR module provides helpful instructions about the ECR repository:
-```terraform
-resource "null_resource" "ecr_instructions" {
-  provisioner "local-exec" {
-    command = <<-EOT
-      echo "INFO: Using existing ECR repository: ${var.repository_name}"
-      echo "IMPORTANT: If you haven't pushed an image yet, run: ./ecr_push.sh"
     EOT
   }
 }
