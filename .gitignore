@@ -5,3 +5,4 @@ tfplan
 .terraform.tfstate.lock.info
 .terraform/providers/registry.terraform.io/hashicorp/aws/5.99.1/windows_amd64/LICENSE.txt
 terraform.tfstate
+.terraform/modules/modules.json

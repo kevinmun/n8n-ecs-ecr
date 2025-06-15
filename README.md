@@ -1,6 +1,6 @@
 # ECS-ECR Demo Application
 
-This project demonstrates how to deploy a containerized web application to AWS using Amazon ECS (Elastic Container Service) with Fargate and Amazon ECR (Elastic Container Registry).
+This project demonstrates how to deploy a containerized web application to AWS using Amazon ECS (Elastic Container Service) with Fargate, Amazon ECR (Elastic Container Registry), and Amazon CloudFront.
 
 ## Architecture
 
@@ -9,6 +9,7 @@ The application uses the following AWS services and components:
 - **Amazon ECR**: Stores the Docker container image
 - **Amazon ECS with Fargate**: Runs the containerized application without managing servers
 - **Application Load Balancer**: Distributes traffic to the ECS tasks
+- **Amazon CloudFront**: Provides global content delivery and HTTPS termination
 - **VPC with public subnets**: Provides the networking infrastructure
 - **IAM Roles**: Grants necessary permissions for ECS task execution
 
@@ -21,7 +22,12 @@ The application uses the following AWS services and components:
 ├── docker/
 │   ├── Dockerfile        # NGINX container configuration
 │   └── index.html        # Simple web page to serve
-├── .terraform/           # Terraform state directory
+├── modules/
+│   ├── vpc/              # VPC infrastructure module
+│   ├── ecr/              # ECR repository module
+│   ├── ecs/              # ECS cluster and service module
+│   ├── alb/              # Application Load Balancer module
+│   └── cf/               # CloudFront distribution module
 ├── main.tf               # Main Terraform configuration
 ├── variables.tf          # Terraform variables
 ├── outputs.tf            # Terraform outputs
@@ -34,6 +40,7 @@ The application uses the following AWS services and components:
 - AWS CLI configured with appropriate credentials
 - Terraform installed
 - Docker installed
+- Existing ECR repository
 
 ## Deployment Steps
 
@@ -49,8 +56,6 @@ terraform init
 terraform apply
 ```
 
-This will create all the necessary AWS resources including the VPC, subnets, security groups, ECR repository, ECS cluster, and load balancer.
-
 ### 3. Build and Push Docker Image
 
 ```bash
@@ -65,10 +70,16 @@ This script will:
 
 ### 4. Access the Application
 
-After deployment is complete, you can access the application using the load balancer URL, which is available in the Terraform outputs:
+After deployment is complete, you can access the application using the CloudFront domain name, which is available in the Terraform outputs:
 
 ```bash
-terraform output alb_dns_name
+terraform output cloudfront_domain_name
+```
+
+You can also access the application directly via the ALB:
+
+```bash
+terraform output load_balancer_dns
 ```
 
 ## Cleaning Up
@@ -82,11 +93,29 @@ terraform destroy
 ## Security Considerations
 
 - The application is deployed in public subnets with a public load balancer for demonstration purposes
+- CloudFront provides HTTPS using its default certificate
 - In a production environment, consider using private subnets for the ECS tasks and implementing additional security measures
-- The security group allows inbound traffic on port 80 only
+- The security group allows inbound traffic on ports 80 and 443
 
 ## Customization
 
 - Modify the `docker/index.html` file to change the web content
-- Update the `main.tf` file to adjust the infrastructure configuration
-- Edit the task definition in `main.tf` to change container specifications
+- Update the module configurations in `main.tf` to adjust the infrastructure
+- Edit the task definition in the ECS module to change container specifications
+
+## Module Structure
+
+### VPC Module
+Creates the networking infrastructure including VPC, subnets, route tables, and security groups.
+
+### ECR Module
+References an existing ECR repository.
+
+### ALB Module
+Creates the Application Load Balancer, target group, and HTTP listener.
+
+### ECS Module
+Creates the ECS cluster, task definition, and service that runs the containerized application.
+
+### CloudFront Module
+Creates a CloudFront distribution with the ALB as its origin, providing global content delivery and HTTPS.
