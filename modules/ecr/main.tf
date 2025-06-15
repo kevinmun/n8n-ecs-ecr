@@ -13,16 +13,19 @@ resource "null_resource" "ecr_instructions" {
   }
 }
 
-# Enable cross-region replication if specified
-resource "aws_ecr_replication_configuration" "replication" {
-  count = var.enable_replication ? 1 : 0
+# COMMENTED OUT: Use this if you want to create and manage the ECR repository with Terraform
+# WARNING: Using force_delete=true will delete all images in the repository when destroyed
+/*
+resource "aws_ecr_repository" "repo" {
+  name        = var.repository_name
+  force_delete = true  # WARNING: This will delete all images when destroyed
   
-  replication_configuration {
-    rule {
-      destination {
-        region      = var.replication_region
-        registry_id = var.registry_id
-      }
-    }
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+  
+  encryption_configuration {
+    encryption_type = "AES256"
   }
 }
+*/

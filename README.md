@@ -162,6 +162,15 @@ To avoid incurring charges, destroy the resources when you're done:
 terraform destroy
 ```
 
+**Note about ECR Repository:** The ECR repository is referenced as a data source and not managed by Terraform. If you need to delete the repository and all its images, you'll need to:
+
+1. Uncomment and modify the `aws_ecr_repository` resource in the ECR module
+2. Set `force_delete = true` in the resource configuration
+3. Update the data source to reference this resource instead
+4. Run `terraform apply` followed by `terraform destroy`
+
+**WARNING:** Using `force_delete = true` will delete all images in the repository when destroyed.
+
 ## Security Considerations
 
 - The application is deployed in public subnets with a public load balancer for demonstration purposes
