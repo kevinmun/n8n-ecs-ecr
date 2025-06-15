@@ -30,6 +30,5 @@ variable "service_desired_count" {
 
 variable "notification_emails" {
   description = "List of email addresses to notify for alarms"
-  type        = list(string)
-  default     = []
+  type      = string
 }

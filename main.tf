@@ -51,7 +51,7 @@ module "s3" {
 module "sns" {
   source          = "./modules/sns"
   name_prefix     = "ecs-ecr-demo"
-  email_addresses = var.notification_emails
+  email_addresses = ""
 }
 
 # CloudFront Module
@@ -59,7 +59,6 @@ module "cloudfront" {
   source       = "./modules/cf"
   name_prefix  = "ecs-ecr-demo"
   alb_dns_name = module.alb.load_balancer_dns
-  logs_bucket  = module.s3.bucket_domain_name
 }
 
 # CloudWatch Module for monitoring
@@ -79,15 +78,16 @@ resource "null_resource" "outputs" {
   }
 
   provisioner "local-exec" {
+    interpreter = ["PowerShell", "-Command"]
     command = <<-EOT
-      echo "VPC ID: ${module.vpc.vpc_id}" > outputs.txt
-      echo "ECR Repository URL: ${module.ecr.repository_url}" >> outputs.txt
-      echo "ECS Cluster Name: ${module.ecs.cluster_name}" >> outputs.txt
-      echo "Load Balancer DNS: ${module.alb.load_balancer_dns}" >> outputs.txt
-      echo "CloudFront Domain Name: ${module.cloudfront.distribution_domain_name}" >> outputs.txt
-      echo "CloudWatch Dashboard: ${module.cloudwatch.dashboard_name}" >> outputs.txt
-      echo "S3 Logs Bucket: ${module.s3.bucket_name}" >> outputs.txt
-      echo "SNS Topic ARN: ${module.sns.topic_arn}" >> outputs.txt
+      Set-Content -Path outputs.txt -Value "VPC ID: ${module.vpc.vpc_id}"
+      Add-Content -Path outputs.txt -Value "ECR Repository URL: ${module.ecr.repository_url}"
+      Add-Content -Path outputs.txt -Value "ECS Cluster Name: ${module.ecs.cluster_name}"
+      Add-Content -Path outputs.txt -Value "Load Balancer DNS: ${module.alb.load_balancer_dns}"
+      Add-Content -Path outputs.txt -Value "CloudFront Domain Name: ${module.cloudfront.distribution_domain_name}"
+      Add-Content -Path outputs.txt -Value "CloudWatch Dashboard: ${module.cloudwatch.dashboard_name}"
+      Add-Content -Path outputs.txt -Value "S3 Logs Bucket: ${module.s3.bucket_name}"
+      Add-Content -Path outputs.txt -Value "SNS Topic ARN: ${module.sns.topic_arn}"
     EOT
   }
 
