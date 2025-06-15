@@ -9,6 +9,7 @@ The application uses the following AWS services and components:
 - **Amazon ECR**: Stores the Docker container image
 - **Amazon ECS with Fargate**: Runs the containerized application without managing servers
 - **Application Load Balancer**: Distributes traffic to the ECS tasks
+- **AWS WAF**: Provides web application firewall protection
 - **Amazon CloudFront**: Provides global content delivery and HTTPS termination
 - **VPC with public subnets**: Provides the networking infrastructure
 - **IAM Roles**: Grants necessary permissions for ECS task execution
@@ -21,6 +22,14 @@ The application uses the following AWS services and components:
                                   +------+------+
                                          |
                                          | HTTPS
+                                         v
+                                  +-------------+
+                                  |             |
+                                  |     WAF     |
+                                  |             |
+                                  +------+------+
+                                         |
+                                         | Filter
                                          v
                                   +-------------+
                                   |             |
@@ -67,6 +76,7 @@ The application uses the following AWS services and components:
 │   ├── ecr/              # ECR repository module
 │   ├── ecs/              # ECS cluster and service module
 │   ├── alb/              # Application Load Balancer module
+│   ├── waf/              # Web Application Firewall module
 │   └── cf/               # CloudFront distribution module
 ├── main.tf               # Main Terraform configuration
 ├── variables.tf          # Terraform variables
@@ -156,6 +166,7 @@ terraform destroy
 
 - The application is deployed in public subnets with a public load balancer for demonstration purposes
 - CloudFront provides HTTPS using its default certificate
+- WAF protects against common web exploits and provides rate limiting
 - In a production environment, consider using private subnets for the ECS tasks and implementing additional security measures
 - The security group allows inbound traffic on ports 80 and 443
 
@@ -164,6 +175,7 @@ terraform destroy
 - Modify the `docker/index.html` file to change the web content
 - Update the module configurations in `main.tf` to adjust the infrastructure
 - Edit the task definition in the ECS module to change container specifications
+- Adjust WAF rules in the WAF module to customize security protections
 
 ## Module Structure
 
@@ -176,8 +188,11 @@ References an existing ECR repository.
 ### ALB Module
 Creates the Application Load Balancer, target group, and HTTP listener.
 
-### ECS Module
-Creates the ECS cluster, task definition, and service that runs the containerized application.
+### WAF Module
+Creates a Web Application Firewall with rule sets to protect against common web exploits and provide rate limiting.
 
 ### CloudFront Module
 Creates a CloudFront distribution with the ALB as its origin, providing global content delivery and HTTPS.
+
+### ECS Module
+Creates the ECS cluster, task definition, and service that runs the containerized application.

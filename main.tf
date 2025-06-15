@@ -40,9 +40,18 @@ module "ecs" {
   service_desired_count = var.service_desired_count
 }
 
+# WAF Module
+module "waf" {
+  source          = "./modules/waf"
+  name_prefix     = "ecs-ecr-demo"
+  rate_limit      = var.waf_rate_limit
+  blocked_countries = var.waf_blocked_countries
+}
+
 # CloudFront Module
 module "cloudfront" {
   source       = "./modules/cf"
   name_prefix  = "ecs-ecr-demo"
   alb_dns_name = module.alb.load_balancer_dns
+  web_acl_id   = module.waf.web_acl_id
 }
