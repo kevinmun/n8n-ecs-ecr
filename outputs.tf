@@ -23,7 +23,17 @@ output "cloudfront_domain_name" {
   value       = module.cloudfront.distribution_domain_name
 }
 
-output "waf_web_acl_id" {
-  description = "The ID of the WAF Web ACL"
-  value       = module.waf.web_acl_id
+output "cloudwatch_dashboard" {
+  description = "The name of the CloudWatch dashboard"
+  value       = module.cloudwatch.dashboard_name
+}
+
+output "logs_bucket" {
+  description = "The name of the S3 bucket for logs"
+  value       = module.s3.bucket_name
+}
+
+output "sns_topic_arn" {
+  description = "The ARN of the SNS topic for notifications"
+  value       = module.sns.topic_arn
 }

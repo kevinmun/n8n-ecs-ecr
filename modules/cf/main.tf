@@ -5,7 +5,6 @@ resource "aws_cloudfront_distribution" "alb_distribution" {
   comment             = "${var.name_prefix} CloudFront Distribution"
   default_root_object = "index.html"
   price_class         = var.price_class
-  web_acl_id          = var.web_acl_id
   
   # ALB origin
   origin {
@@ -38,6 +37,16 @@ resource "aws_cloudfront_distribution" "alb_distribution" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
+  }
+  
+  # Enable logging if S3 bucket is provided
+  dynamic "logging_config" {
+    for_each = var.logs_bucket != "" ? [1] : []
+    content {
+      include_cookies = false
+      bucket          = var.logs_bucket
+      prefix          = "cloudfront-logs/"
+    }
   }
   
   # Geo restrictions

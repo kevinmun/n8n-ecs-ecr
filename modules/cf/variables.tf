@@ -14,8 +14,8 @@ variable "price_class" {
   default     = "PriceClass_200" # Options: PriceClass_100, PriceClass_200, PriceClass_All
 }
 
-variable "web_acl_id" {
-  description = "ID of the WAF Web ACL to associate with the CloudFront distribution"
+variable "logs_bucket" {
+  description = "S3 bucket domain name for CloudFront logs"
   type        = string
   default     = ""
 }

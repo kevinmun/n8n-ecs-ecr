@@ -10,12 +10,6 @@ variable "ecr_repository_name" {
   default     = "ecs-ecr-demo"
 }
 
-variable "aws_account_id" {
-  description = "AWS Account ID for ECR registry"
-  type        = string
-  default     = ""
-}
-
 variable "task_cpu" {
   description = "CPU units for the ECS task"
   type        = string
@@ -34,14 +28,8 @@ variable "service_desired_count" {
   default     = 1
 }
 
-variable "waf_rate_limit" {
-  description = "Maximum number of requests allowed in a 5-minute period from a single IP address"
-  type        = number
-  default     = 1000
-}
-
-variable "waf_blocked_countries" {
-  description = "List of country codes to block (ISO 3166-1 alpha-2 format)"
+variable "notification_emails" {
+  description = "List of email addresses to notify for alarms"
   type        = list(string)
   default     = []
 }

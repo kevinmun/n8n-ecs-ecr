@@ -9,8 +9,10 @@ The application uses the following AWS services and components:
 - **Amazon ECR**: Stores the Docker container image
 - **Amazon ECS with Fargate**: Runs the containerized application without managing servers
 - **Application Load Balancer**: Distributes traffic to the ECS tasks
-- **AWS WAF**: Provides web application firewall protection
 - **Amazon CloudFront**: Provides global content delivery and HTTPS termination
+- **Amazon S3**: Stores CloudFront access logs
+- **Amazon CloudWatch**: Monitors and alerts on application metrics
+- **Amazon SNS**: Sends notifications for alarms
 - **VPC with public subnets**: Provides the networking infrastructure
 - **IAM Roles**: Grants necessary permissions for ECS task execution
 
@@ -22,14 +24,6 @@ The application uses the following AWS services and components:
                                   +------+------+
                                          |
                                          | HTTPS
-                                         v
-                                  +-------------+
-                                  |             |
-                                  |     WAF     |
-                                  |             |
-                                  +------+------+
-                                         |
-                                         | Filter
                                          v
                                   +-------------+
                                   |             |
@@ -62,6 +56,22 @@ The application uses the following AWS services and components:
                | (Fargate)     |                  | (Fargate)     |
                |               |                  |               |
                +---------------+                  +---------------+
+
++------------------+            +------------------+            +------------------+
+|                  |            |                  |            |                  |
+|    CloudWatch    |<-----------+    CloudFront    +----------->|       S3         |
+|    Monitoring    |   Metrics  |                  |    Logs    |     Logging      |
+|                  |            |                  |            |                  |
++--------+---------+            +------------------+            +------------------+
+         |
+         | Alarms
+         v
++------------------+
+|                  |
+|       SNS        |
+|  Notifications   |
+|                  |
++------------------+
 ```
 
 ## Project Structure
@@ -76,8 +86,10 @@ The application uses the following AWS services and components:
 │   ├── ecr/              # ECR repository module
 │   ├── ecs/              # ECS cluster and service module
 │   ├── alb/              # Application Load Balancer module
-│   ├── waf/              # Web Application Firewall module
-│   └── cf/               # CloudFront distribution module
+│   ├── cf/               # CloudFront distribution module
+│   ├── s3/               # S3 bucket for logs module
+│   ├── sns/              # SNS notifications module
+│   └── cw/               # CloudWatch monitoring module
 ├── main.tf               # Main Terraform configuration
 ├── variables.tf          # Terraform variables
 ├── outputs.tf            # Terraform outputs
@@ -137,7 +149,7 @@ terraform apply tfplan
 Or simply:
 
 ```bash
-terraform apply
+terraform apply -var='notification_emails=["your.email@example.com"]'
 ```
 
 ### 6. Access the Application
@@ -152,6 +164,21 @@ You can also access the application directly via the ALB:
 
 ```bash
 terraform output load_balancer_dns
+```
+
+## Monitoring and Logging
+
+The infrastructure includes CloudWatch monitoring and logging for the CloudFront distribution:
+
+- **CloudWatch Log Group**: Captures CloudFront logs with a 30-day retention period
+- **CloudWatch Alarms**: Monitors for 403 and 5xx error rates, triggering when they exceed thresholds
+- **CloudWatch Dashboard**: Provides visualization of CloudFront metrics including requests and error rates
+- **S3 Bucket**: Stores CloudFront access logs with lifecycle policies
+- **SNS Topic**: Sends notifications when alarms are triggered
+
+To access the CloudWatch Dashboard:
+```bash
+aws cloudwatch get-dashboard --dashboard-name $(terraform output -raw cloudwatch_dashboard)
 ```
 
 ## Cleaning Up
@@ -175,7 +202,7 @@ terraform destroy
 
 - The application is deployed in public subnets with a public load balancer for demonstration purposes
 - CloudFront provides HTTPS using its default certificate
-- WAF protects against common web exploits and provides rate limiting
+- CloudWatch alarms monitor for suspicious error patterns
 - In a production environment, consider using private subnets for the ECS tasks and implementing additional security measures
 - The security group allows inbound traffic on ports 80 and 443
 
@@ -184,7 +211,8 @@ terraform destroy
 - Modify the `docker/index.html` file to change the web content
 - Update the module configurations in `main.tf` to adjust the infrastructure
 - Edit the task definition in the ECS module to change container specifications
-- Adjust WAF rules in the WAF module to customize security protections
+- Adjust CloudWatch alarm thresholds in the CW module
+- Add additional email addresses to the SNS notifications
 
 ## Terraform Null Resources
 
@@ -235,11 +263,17 @@ References an existing ECR repository.
 ### ALB Module
 Creates the Application Load Balancer, target group, and HTTP listener.
 
-### WAF Module
-Creates a Web Application Firewall with rule sets to protect against common web exploits and provide rate limiting.
-
 ### CloudFront Module
 Creates a CloudFront distribution with the ALB as its origin, providing global content delivery and HTTPS.
+
+### S3 Module
+Creates an S3 bucket for storing CloudFront access logs with lifecycle policies.
+
+### SNS Module
+Creates an SNS topic for alarm notifications with email subscriptions.
+
+### CloudWatch Module
+Creates CloudWatch alarms, log groups, and dashboards for monitoring CloudFront metrics.
 
 ### ECS Module
 Creates the ECS cluster, task definition, and service that runs the containerized application.

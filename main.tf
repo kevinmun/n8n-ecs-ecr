@@ -2,12 +2,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Provider for global resources (WAF for CloudFront must be in us-east-1)
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-}
-
 # VPC Module
 module "vpc" {
   source       = "./modules/vpc"
@@ -46,16 +40,18 @@ module "ecs" {
   service_desired_count = var.service_desired_count
 }
 
-# WAF Module - Must use us-east-1 for CloudFront WAF
-module "waf" {
-  source            = "./modules/waf"
+# S3 Module for logs
+module "s3" {
+  source            = "./modules/s3"
   name_prefix       = "ecs-ecr-demo"
-  rate_limit        = var.waf_rate_limit
-  blocked_countries = var.waf_blocked_countries
+  log_retention_days = 30
+}
 
-  providers = {
-    aws = aws.us_east_1
-  }
+# SNS Module for notifications
+module "sns" {
+  source          = "./modules/sns"
+  name_prefix     = "ecs-ecr-demo"
+  email_addresses = var.notification_emails
 }
 
 # CloudFront Module
@@ -63,7 +59,17 @@ module "cloudfront" {
   source       = "./modules/cf"
   name_prefix  = "ecs-ecr-demo"
   alb_dns_name = module.alb.load_balancer_dns
-  web_acl_id   = module.waf.web_acl_id
+  logs_bucket  = module.s3.bucket_domain_name
+}
+
+# CloudWatch Module for monitoring
+module "cloudwatch" {
+  source            = "./modules/cw"
+  name_prefix       = "ecs-ecr-demo"
+  distribution_id   = module.cloudfront.distribution_id
+  log_retention_days = 30
+  error_threshold   = 5
+  sns_topic_arn     = module.sns.topic_arn
 }
 
 # Null resource to output all values to a text file
@@ -79,7 +85,9 @@ resource "null_resource" "outputs" {
       echo "ECS Cluster Name: ${module.ecs.cluster_name}" >> outputs.txt
       echo "Load Balancer DNS: ${module.alb.load_balancer_dns}" >> outputs.txt
       echo "CloudFront Domain Name: ${module.cloudfront.distribution_domain_name}" >> outputs.txt
-      echo "WAF Web ACL ID: ${module.waf.web_acl_id}" >> outputs.txt
+      echo "CloudWatch Dashboard: ${module.cloudwatch.dashboard_name}" >> outputs.txt
+      echo "S3 Logs Bucket: ${module.s3.bucket_name}" >> outputs.txt
+      echo "SNS Topic ARN: ${module.sns.topic_arn}" >> outputs.txt
     EOT
   }
 
@@ -88,7 +96,9 @@ resource "null_resource" "outputs" {
     module.ecr,
     module.alb,
     module.ecs,
-    module.waf,
-    module.cloudfront
+    module.cloudfront,
+    module.s3,
+    module.sns,
+    module.cloudwatch
   ]
 }
