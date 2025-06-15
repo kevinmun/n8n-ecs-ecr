@@ -2,6 +2,12 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Provider for global resources (WAF for CloudFront must be in us-east-1)
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 # VPC Module
 module "vpc" {
   source       = "./modules/vpc"
@@ -10,10 +16,11 @@ module "vpc" {
   name_prefix  = "ecs-ecr-demo"
 }
 
-# ECR Module
+# ECR Module - Using existing repository
 module "ecr" {
   source          = "./modules/ecr"
   repository_name = var.ecr_repository_name
+
 }
 
 # ALB Module
@@ -40,12 +47,16 @@ module "ecs" {
   service_desired_count = var.service_desired_count
 }
 
-# WAF Module
+# WAF Module - Must use us-east-1 for CloudFront WAF
 module "waf" {
-  source          = "./modules/waf"
-  name_prefix     = "ecs-ecr-demo"
-  rate_limit      = var.waf_rate_limit
+  source            = "./modules/waf"
+  name_prefix       = "ecs-ecr-demo"
+  rate_limit        = var.waf_rate_limit
   blocked_countries = var.waf_blocked_countries
+
+  providers = {
+    aws = aws.us_east_1
+  }
 }
 
 # CloudFront Module
@@ -54,4 +65,31 @@ module "cloudfront" {
   name_prefix  = "ecs-ecr-demo"
   alb_dns_name = module.alb.load_balancer_dns
   web_acl_id   = module.waf.web_acl_id
+}
+
+# Null resource to output all values to a text file
+resource "null_resource" "outputs" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "VPC ID: ${module.vpc.vpc_id}" > outputs.txt
+      echo "ECR Repository URL: ${module.ecr.repository_url}" >> outputs.txt
+      echo "ECS Cluster Name: ${module.ecs.cluster_name}" >> outputs.txt
+      echo "Load Balancer DNS: ${module.alb.load_balancer_dns}" >> outputs.txt
+      echo "CloudFront Domain Name: ${module.cloudfront.distribution_domain_name}" >> outputs.txt
+      echo "WAF Web ACL ID: ${module.waf.web_acl_id}" >> outputs.txt
+    EOT
+  }
+
+  depends_on = [
+    module.vpc,
+    module.ecr,
+    module.alb,
+    module.ecs,
+    module.waf,
+    module.cloudfront
+  ]
 }

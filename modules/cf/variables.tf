@@ -17,5 +17,5 @@ variable "price_class" {
 variable "web_acl_id" {
   description = "ID of the WAF Web ACL to associate with the CloudFront distribution"
   type        = string
-  default     = null
+  default     = ""
 }
