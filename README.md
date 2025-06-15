@@ -177,6 +177,44 @@ terraform destroy
 - Edit the task definition in the ECS module to change container specifications
 - Adjust WAF rules in the WAF module to customize security protections
 
+## Terraform Null Resources
+
+This project uses Terraform null resources for several important tasks:
+
+### Output Collection
+A null resource in the main configuration collects all important infrastructure outputs into a single text file:
+```terraform
+resource "null_resource" "outputs" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "VPC ID: ${module.vpc.vpc_id}" > outputs.txt
+      echo "ECR Repository URL: ${module.ecr.repository_url}" >> outputs.txt
+      # Additional outputs...
+    EOT
+  }
+}
+```
+
+### ECR Instructions
+A null resource in the ECR module provides helpful instructions about the ECR repository:
+```terraform
+resource "null_resource" "ecr_instructions" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "INFO: Using existing ECR repository: ${var.repository_name}"
+      echo "IMPORTANT: If you haven't pushed an image yet, run: ./ecr_push.sh"
+    EOT
+  }
+}
+```
+
+For more information about Terraform null resources and their uses in DevOps automation, refer to:
+[Terraform null_resource: Your Secret Weapon for DevOps Automation](https://technodiaryvishnu.hashnode.dev/terraform-nullresource-your-secret-weapon-for-devops-automation)
+
 ## Module Structure
 
 ### VPC Module
