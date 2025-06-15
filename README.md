@@ -13,7 +13,47 @@ The application uses the following AWS services and components:
 - **VPC with public subnets**: Provides the networking infrastructure
 - **IAM Roles**: Grants necessary permissions for ECS task execution
 
-![](<arch.drawio (1).png>)
+```
+                                  +-------------+
+                                  |             |
+                                  |    Users    |
+                                  |             |
+                                  +------+------+
+                                         |
+                                         | HTTPS
+                                         v
+                                  +-------------+
+                                  |             |
+                                  | CloudFront  |
+                                  |             |
+                                  +------+------+
+                                         |
+                                         | HTTP
+                                         v
+                                  +-------------+
+                                  |             |
+                                  |     ALB     |
+                                  |             |
+                                  +------+------+
+                                         |
+                                         | Route Traffic
+                                         v
++------------------+            +---------------+
+|                  |            |               |
+| ECR Repository   +----------->|  ECS Cluster  |
+|                  |  Pull      |               |
++------------------+  Images    +-------+-------+
+                                        |
+                                        | Manage
+                       +----------------+-----------------+
+                       |                                  |
+               +-------+-------+                  +-------+-------+
+               |               |                  |               |
+               |  ECS Task 1   |                  |  ECS Task 2   |
+               | (Fargate)     |                  | (Fargate)     |
+               |               |                  |               |
+               +---------------+                  +---------------+
+```
 
 ## Project Structure
 
@@ -50,14 +90,15 @@ The application uses the following AWS services and components:
 terraform init
 ```
 
-### 2. Apply Terraform Configuration
+### 2. Format Terraform Code
 
 ```bash
-terraform apply
+terraform fmt
 ```
 
-### 3. Build and Push Docker Image
+### 3. Prepare Container Image
 
+**If you don't have an image in ECR yet:**
 ```bash
 chmod +x ecr_push.sh
 ./ecr_push.sh
@@ -68,7 +109,28 @@ This script will:
 - Tag the image with the ECR repository URL
 - Push the image to the ECR repository
 
-### 4. Access the Application
+**If you already have an image in ECR:**
+You can skip this step and proceed to the next one.
+
+### 4. Plan Terraform Deployment
+
+```bash
+terraform plan -out=tfplan
+```
+
+### 5. Apply Terraform Configuration
+
+```bash
+terraform apply tfplan
+```
+
+Or simply:
+
+```bash
+terraform apply
+```
+
+### 6. Access the Application
 
 After deployment is complete, you can access the application using the CloudFront domain name, which is available in the Terraform outputs:
 

@@ -1,8 +1,38 @@
+# Terraform files
+.terraform/
 .terraform.lock.hcl
-.terraform/providers/registry.terraform.io/hashicorp/aws/5.99.1/windows_amd64/terraform-provider-aws_v5.99.1_x5.exe
-terraform.tfstate.backup
-tfplan
-.terraform.tfstate.lock.info
-.terraform/providers/registry.terraform.io/hashicorp/aws/5.99.1/windows_amd64/LICENSE.txt
 terraform.tfstate
-.terraform/modules/modules.json
+terraform.tfstate.backup
+.terraform.tfstate.lock.info
+tfplan
+
+# Local .terraform directories
+**/.terraform/*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which might contain sensitive data
+*.tfvars
+*.tfvars.json
+
+# Ignore override files as they're usually used for local dev
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
