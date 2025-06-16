@@ -7,8 +7,3 @@ output "repository_name" {
   description = "The name of the ECR repository"
   value       = data.aws_ecr_repository.repo.name
 }
-
-output "repository_arn" {
-  description = "The ARN of the ECR repository"
-  value       = data.aws_ecr_repository.repo.arn
-}

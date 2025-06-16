@@ -12,14 +12,14 @@ variable "ecr_repository_name" {
 
 variable "task_cpu" {
   description = "CPU units for the ECS task"
-  type        = string
-  default     = "256"
+  type        = number
+  default     = 256
 }
 
 variable "task_memory" {
-  description = "Memory for the ECS task in MB"
-  type        = string
-  default     = "512"
+  description = "Memory for the ECS task in MiB"
+  type        = number
+  default     = 512
 }
 
 variable "service_desired_count" {
@@ -28,7 +28,9 @@ variable "service_desired_count" {
   default     = 1
 }
 
-variable "notification_emails" {
-  description = "List of email addresses to notify for alarms"
-  type      = string
+variable "email_addresses" {
+  description = "List of email addresses to notify"
+  type        = list(string)
+  default     = []
 }
+
