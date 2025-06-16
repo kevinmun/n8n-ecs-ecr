@@ -126,11 +126,7 @@ terraform fmt
 ### 3. Prepare Container Image
 
 **If you don't have an image in ECR yet:**
-```bash
-chmod +x ecr_push.sh
-./ecr_push.sh
-```
-
+If you haven’t pushed your app image to ECR yet, Check for ecr_push.sh in scripts folder and run the commands.
 This script will:
 - Build the Docker image from the Dockerfile in the docker directory
 - Tag the image with the ECR repository URL
