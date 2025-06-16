@@ -53,6 +53,9 @@ resource "aws_route_table_association" "public_subnet" {
   route_table_id = aws_route_table.public.id
 }
 
+# Restrict access to specific IP addresses for security
+# Update this with your IP address using: curl ifconfig.me
+
 # Security Group
 resource "aws_security_group" "ecs_sg" {
   vpc_id = aws_vpc.main.id

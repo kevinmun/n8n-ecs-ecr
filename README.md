@@ -139,6 +139,21 @@ This script will:
 **If you already have an image in ECR:**
 You can skip this step and proceed to the next one.
 
+### ✅ Final Checks Before You Deploy
+### 🔍 1. Double-check Terraform Variable Configuration
+Ensure the following are correctly defined and populated:
+
+**In variables.tf:**
+
+- Region
+- ECR repo name
+- S3 log bucket name (optional default or dynamic name)
+- CloudFront price class or alias config (if any)
+- email for SNS Topic Subscription
+- Restrict access to specific IP addresses for security (Check in VPC module main.tf)
+- ECS Tasks memory,CPU and number of tasks
+- log retention period
+
 ### 4. Plan Terraform Deployment
 
 ```bash
