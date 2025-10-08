@@ -24,8 +24,18 @@ output "cloudfront_domain_name" {
 }
 
 output "cloudwatch_dashboard" {
-  description = "The name of the CloudWatch dashboard"
+  description = "CloudWatch dashboard name"
   value       = module.cloudwatch.dashboard_name
+}
+
+output "efs_file_system_id" {
+  description = "EFS file system ID for n8n data"
+  value       = module.efs.file_system_id
+}
+
+output "n8n_url" {
+  description = "n8n application URL via CloudFront"
+  value       = "https://${module.cloudfront.distribution_domain_name}"
 }
 
 output "logs_bucket" {

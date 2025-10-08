@@ -73,7 +73,7 @@ resource "aws_cloudwatch_dashboard" "cloudfront_dashboard" {
         ],
         "period": 300,
         "stat": "Sum",
-        "region": "us-east-1",
+        "region": "ap-southeast-5",
         "title": "CloudFront Traffic"
       }
     },
@@ -91,7 +91,7 @@ resource "aws_cloudwatch_dashboard" "cloudfront_dashboard" {
         ],
         "period": 300,
         "stat": "Average",
-        "region": "us-east-1",
+        "region": "ap-southeast-5",
         "title": "CloudFront Error Rates"
       }
     }

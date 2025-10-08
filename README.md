@@ -1,20 +1,21 @@
-# ECS-ECR Demo Application
+# n8n ECS-ECR Deployment
 
-This project demonstrates how to deploy a containerized web application to AWS using Amazon ECS (Elastic Container Service) with Fargate, Amazon ECR (Elastic Container Registry), and Amazon CloudFront.
+This project demonstrates how to deploy n8n (workflow automation platform) to AWS using Amazon ECS (Elastic Container Service) with Fargate, Amazon ECR (Elastic Container Registry), Amazon EFS for persistent storage, and Amazon CloudFront for global distribution.
 
 ## Architecture
 
 The application uses the following AWS services and components:
 
-- **Amazon ECR**: Stores the Docker container image
-- **Amazon ECS with Fargate**: Runs the containerized application without managing servers
-- **Application Load Balancer**: Distributes traffic to the ECS tasks
+- **Amazon ECR**: Stores the n8n Docker container image
+- **Amazon ECS with Fargate**: Runs the n8n containerized application without managing servers
+- **Amazon EFS**: Provides persistent storage for n8n workflows and data (SQLite database)
+- **Application Load Balancer**: Distributes traffic to the ECS tasks on port 5678
 - **Amazon CloudFront**: Provides global content delivery and HTTPS termination
 - **Amazon S3**: Stores CloudFront access logs
 - **Amazon CloudWatch**: Monitors and alerts on application metrics
 - **Amazon SNS**: Sends notifications for alarms
 - **VPC with public subnets**: Provides the networking infrastructure
-- **IAM Roles**: Grants necessary permissions for ECS task execution
+- **IAM Roles**: Grants necessary permissions for ECS task execution and EFS access
 
 ```
                                   +-------------+

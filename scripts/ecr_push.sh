@@ -1,5 +1,5 @@
 #!/bin/bash
-REPO_NAME=ecs-ecr-demo
+REPO_NAME=n8n-ecs
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 REGION=us-east-1
 

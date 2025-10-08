@@ -1,25 +1,31 @@
 variable "aws_region" {
   description = "AWS region for deployment"
   type        = string
-  default     = "us-east-1"
+  default     = "ap-southeast-5"
 }
 
 variable "ecr_repository_name" {
   description = "Name of the existing ECR repository"
   type        = string
-  default     = "ecs-ecr-demo"
+  default     = "n8n-ecs-ecr"
 }
 
 variable "task_cpu" {
   description = "CPU units for the ECS task"
   type        = number
-  default     = 256
+  default     = 512
 }
 
 variable "task_memory" {
   description = "Memory for the ECS task in MiB"
   type        = number
-  default     = 512
+  default     = 1024
+}
+
+variable "timezone" {
+  description = "Timezone for n8n application"
+  type        = string
+  default     = "UTC"
 }
 
 variable "service_desired_count" {
@@ -33,4 +39,3 @@ variable "email_addresses" {
   type        = list(string)
   default     = []
 }
-

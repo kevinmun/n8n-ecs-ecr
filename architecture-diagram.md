@@ -76,7 +76,7 @@
 │  │  │                                                                             │   │ │
 │  │  │  • Launch Type: FARGATE                                                     │   │ │
 │  │  │  • Desired Count: Configurable                                             │   │ │
-│  │  │  • Task Definition: ecs-ecr-demo-app                                       │   │ │
+│  │  │  • Task Definition: n8n-ecs-app                                       │   │ │
 │  │  │  • Network Mode: awsvpc                                                    │   │ │
 │  │  │  • CPU: Configurable (default: 256)                                       │   │ │
 │  │  │  • Memory: Configurable (default: 512)                                    │   │ │

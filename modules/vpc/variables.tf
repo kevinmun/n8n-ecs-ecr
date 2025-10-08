@@ -10,5 +10,5 @@ variable "subnet_count" {
 
 variable "name_prefix" {
   description = "Prefix to use for resource names"
-  default     = "ecs-ecr-demo"
+  default     = "n8n-ecs"
 }

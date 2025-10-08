@@ -38,14 +38,86 @@ resource "aws_ecs_task_definition" "app" {
   memory                   = var.task_memory
   execution_role_arn       = aws_iam_role.ecs_task_exec.arn
 
+  volume {
+    name = "n8n-data"
+    efs_volume_configuration {
+      file_system_id     = var.efs_file_system_id
+      access_point_id    = var.efs_access_point_id
+      transit_encryption = "ENABLED"
+    }
+  }
+
   container_definitions = jsonencode([{
-    name  = "app"
-    image = "${var.ecr_repository_url}:latest"
+    name  = "n8n"
+    image = "docker.n8n.io/n8nio/n8n:latest"
+    
     portMappings = [{
-      containerPort = 80
-      hostPort      = 80
+      containerPort = 5678
+      hostPort      = 5678
+      protocol      = "tcp"
     }]
+
+    environment = [
+      {
+        name  = "N8N_HOST"
+        value = var.n8n_host
+      },
+      {
+        name  = "N8N_PORT"
+        value = "5678"
+      },
+      {
+        name  = "N8N_PROTOCOL"
+        value = "http"
+      },
+      {
+        name  = "WEBHOOK_URL"
+        value = var.webhook_url
+      },
+      {
+        name  = "GENERIC_TIMEZONE"
+        value = var.timezone
+      }
+    ]
+
+    mountPoints = [{
+      sourceVolume  = "n8n-data"
+      containerPath = "/home/node/.n8n"
+      readOnly      = false
+    }]
+
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = "/ecs/${var.name_prefix}-n8n"
+        "awslogs-region"        = var.aws_region
+        "awslogs-stream-prefix" = "ecs"
+      }
+    }
+
+    healthCheck = {
+      command = [
+        "CMD-SHELL",
+        "wget --no-verbose --tries=1 --spider http://localhost:5678/healthz || exit 1"
+      ]
+      interval    = 30
+      timeout     = 5
+      retries     = 3
+      startPeriod = 60
+    }
+
+    essential = true
   }])
+}
+
+# CloudWatch Log Group for n8n
+resource "aws_cloudwatch_log_group" "n8n" {
+  name              = "/ecs/${var.name_prefix}-n8n"
+  retention_in_days = 30
+
+  tags = {
+    Name = "${var.name_prefix}-n8n-logs"
+  }
 }
 
 # ECS Service
@@ -64,7 +136,7 @@ resource "aws_ecs_service" "app" {
 
   load_balancer {
     target_group_arn = var.target_group_arn
-    container_name   = "app"
-    container_port   = 80
+    container_name   = "n8n"
+    container_port   = 5678
   }
 }
