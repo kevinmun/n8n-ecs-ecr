@@ -70,7 +70,7 @@ module "s3" {
 module "sns" {
   source          = "./modules/sns"
   name_prefix     = "n8n-ecs"
-  email_addresses = ""
+  email_addresses = ["kevin_mkt@hotmail.com"]
 }
 
 # CloudFront Module
@@ -97,24 +97,23 @@ resource "null_resource" "outputs" {
   }
 
   provisioner "local-exec" {
-    interpreter = ["PowerShell", "-Command"]
     command = <<-EOT
-      Set-Content -Path outputs.txt -Value "=== n8n ECS Infrastructure Outputs ==="
-      Add-Content -Path outputs.txt -Value ""
-      Add-Content -Path outputs.txt -Value "n8n Application URL: https://${module.cloudfront.distribution_domain_name}"
-      Add-Content -Path outputs.txt -Value "Load Balancer DNS: ${module.alb.load_balancer_dns}"
-      Add-Content -Path outputs.txt -Value ""
-      Add-Content -Path outputs.txt -Value "=== Infrastructure Details ==="
-      Add-Content -Path outputs.txt -Value "VPC ID: ${module.vpc.vpc_id}"
-      Add-Content -Path outputs.txt -Value "ECS Cluster Name: ${module.ecs.cluster_name}"
-      Add-Content -Path outputs.txt -Value "EFS File System ID: ${module.efs.file_system_id}"
-      Add-Content -Path outputs.txt -Value "ECR Repository URL: ${module.ecr.repository_url}"
-      Add-Content -Path outputs.txt -Value ""
-      Add-Content -Path outputs.txt -Value "=== Monitoring & Logging ==="
-      Add-Content -Path outputs.txt -Value "CloudFront Domain Name: ${module.cloudfront.distribution_domain_name}"
-      Add-Content -Path outputs.txt -Value "CloudWatch Dashboard: ${module.cloudwatch.dashboard_name}"
-      Add-Content -Path outputs.txt -Value "S3 Logs Bucket: ${module.s3.bucket_name}"
-      Add-Content -Path outputs.txt -Value "SNS Topic ARN: ${module.sns.topic_arn}"
+      echo "=== n8n ECS Infrastructure Outputs ===" > outputs.txt
+      echo "" >> outputs.txt
+      echo "n8n Application URL: https://${module.cloudfront.distribution_domain_name}" >> outputs.txt
+      echo "Load Balancer DNS: ${module.alb.load_balancer_dns}" >> outputs.txt
+      echo "" >> outputs.txt
+      echo "=== Infrastructure Details ===" >> outputs.txt
+      echo "VPC ID: ${module.vpc.vpc_id}" >> outputs.txt
+      echo "ECS Cluster Name: ${module.ecs.cluster_name}" >> outputs.txt
+      echo "EFS File System ID: ${module.efs.file_system_id}" >> outputs.txt
+      echo "ECR Repository URL: ${module.ecr.repository_url}" >> outputs.txt
+      echo "" >> outputs.txt
+      echo "=== Monitoring & Logging ===" >> outputs.txt
+      echo "CloudFront Domain Name: ${module.cloudfront.distribution_domain_name}" >> outputs.txt
+      echo "CloudWatch Dashboard: ${module.cloudwatch.dashboard_name}" >> outputs.txt
+      echo "S3 Logs Bucket: ${module.s3.bucket_name}" >> outputs.txt
+      echo "SNS Topic ARN: ${module.sns.topic_arn}" >> outputs.txt
     EOT
   }
 

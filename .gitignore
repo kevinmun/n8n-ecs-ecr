@@ -5,6 +5,7 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform.tfstate.lock.info
 tfplan
+.env.local
 
 # Local .terraform directories
 **/.terraform/*

@@ -42,8 +42,10 @@ resource "aws_ecs_task_definition" "app" {
     name = "n8n-data"
     efs_volume_configuration {
       file_system_id     = var.efs_file_system_id
-      access_point_id    = var.efs_access_point_id
       transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = var.efs_access_point_id
+      }
     }
   }
 

@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "ecr_repository_name" {
   description = "Name of the existing ECR repository"
   type        = string
-  default     = "n8n-ecs-ecr"
+  default     = "n8n-ecs"
 }
 
 variable "task_cpu" {
